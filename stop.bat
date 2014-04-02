@@ -1,3 +1,5 @@
+title GreenOpenERP - www.GreenOpenERP.com
+COLOR 0A
 CD nginx
 nginx -s stop
 CD ..
