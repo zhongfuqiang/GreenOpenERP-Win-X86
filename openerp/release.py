@@ -52,5 +52,5 @@ license = 'AGPL-3'
 
 nt_service_name = "openerp-server-" + serie
 
-version = "GreenOpenERP-7.0-20140521-win-43a9277-0efd4e6-7273d7f"
+version = "GreenOpenERP-7.0-20140522-win-43a9277-0efd4e6-7273d7f"
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
