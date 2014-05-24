@@ -620,6 +620,9 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                         });
                     }
                     return $.when();
+                }).fail(function() {
+                    self.save_list.pop();
+                    return $.when();
                 });
             };
             return iterate();
@@ -716,8 +719,9 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             }
         }
     },
-    on_button_save: function() {
+    on_button_save: function(e) {
         var self = this;
+        $(e.target).attr("disabled", true);
         return this.save().done(function(result) {
             self.trigger("save", result);
             self.reload().then(function() {
@@ -727,6 +731,8 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                     parent.menu.do_reload_needaction();
                 }
             });
+        }).always(function(){
+            $(e.target).attr("disabled", false);
         });
     },
     on_button_cancel: function(event) {
@@ -3148,7 +3154,7 @@ instance.web.form.FieldMany2One = instance.web.form.AbstractField.extend(instanc
                 self.display_value = {};
                 self.render_value();
                 self.focus();
-                self.view.do_onchange(self);
+                self.trigger('changed_value');
             });
         });
 

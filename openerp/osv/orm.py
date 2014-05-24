@@ -466,7 +466,12 @@ class browse_record(object):
                         else:
                             new_data[field_name] = browse_null()
                     elif field_column._type in ('one2many', 'many2many') and len(result_line[field_name]):
-                        new_data[field_name] = self._list_class([browse_record(self._cr, self._uid, id, self._table.pool.get(field_column._obj), self._cache, context=self._context, list_class=self._list_class, fields_process=self._fields_process) for id in result_line[field_name]], self._context)
+                        new_data[field_name] = self._list_class(
+                            (browse_record(self._cr, self._uid, id, self._table.pool.get(field_column._obj),
+                                           self._cache, context=self._context, list_class=self._list_class,
+                                           fields_process=self._fields_process)
+                               for id in result_line[field_name]),
+                            context=self._context)
                     elif field_column._type == 'reference':
                         if result_line[field_name]:
                             if isinstance(result_line[field_name], browse_record):
@@ -4062,9 +4067,13 @@ class BaseModel(object):
                 ir_values_obj.unlink(cr, uid, ir_value_ids, context=context)
 
         for order, object, store_ids, fields in result_store:
-            if object != self._name:
+            if object == self._name:
+                effective_store_ids = list(set(store_ids) - set(ids))
+            else:
+                effective_store_ids = store_ids
+            if effective_store_ids:
                 obj = self.pool.get(object)
-                cr.execute('select id from '+obj._table+' where id IN %s', (tuple(store_ids),))
+                cr.execute('select id from '+obj._table+' where id IN %s', (tuple(effective_store_ids),))
                 rids = map(lambda x: x[0], cr.fetchall())
                 if rids:
                     obj._store_set_values(cr, uid, rids, fields, context)
@@ -4579,7 +4588,7 @@ class BaseModel(object):
         if isinstance(select, (int, long)):
             return browse_record(cr, uid, select, self, cache, context=context, list_class=self._list_class, fields_process=fields_process)
         elif isinstance(select, list):
-            return self._list_class([browse_record(cr, uid, id, self, cache, context=context, list_class=self._list_class, fields_process=fields_process) for id in select], context=context)
+            return self._list_class((browse_record(cr, uid, id, self, cache, context=context, list_class=self._list_class, fields_process=fields_process) for id in select), context=context)
         else:
             return browse_null()
 
